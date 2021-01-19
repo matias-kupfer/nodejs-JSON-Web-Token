@@ -26,3 +26,4 @@ const userSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model('User', userSchema);
+// collection name is defined here 'User' in this case

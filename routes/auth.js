@@ -29,7 +29,7 @@ router.post('/register', async (req, res) => {
     });
     try {
         const savedUser = await user.save();
-        res.json({user: user.id});
+        res.json({user: savedUser.id});
     } catch (e) {
         res.status(400).send(e);
     }
@@ -39,13 +39,12 @@ router.post('/login', async (req, res) => {
     // Validate data
     const {error} = loginValidation(req.body);
     if (error) return res.status(400).send(error.details[0].message);
-
     // check if user exists
-    const user = await User.findOne({email: req.body.email});
+    const user = await User.findOne({email: req.body.email}).then(r => console.log(r)).catch(e => console.log(e));
     if (!user) {
         return res.status(400).send('Email not found');
     }
-    // Pasword is correct
+    // Password is correct
     const validPassword = await bcrypt.compare(req.body.password, user.password);
     if (!validPassword) {
         return res.status(400).send('Password is incorrect');
@@ -53,7 +52,7 @@ router.post('/login', async (req, res) => {
 
     // JSON WEB TOKEN
     const token = jwt.sign({_id: user._id}, process.env.TOKEN_SECRET);
-    res.header('auth-token', token).send(token);
+    res.header('auth-token', token).send({"token": token, user});
 });
 
 module.exports = router;
